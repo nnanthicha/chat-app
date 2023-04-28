@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState, MouseEvent } from "react";
 import Image from "next/image";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 interface Group {
   groupName: string;
@@ -11,7 +12,7 @@ interface ChatGroupsProps {
   selectedGroup: string;
 }
 
-const groupList: Group[] = [
+const groupListDefault: Group[] = [
   {
     groupName: "Someone",
     people: 1,
@@ -24,19 +25,46 @@ const groupList: Group[] = [
 ];
 
 const Groups: React.FC<ChatGroupsProps> = ({ onGroupClick, selectedGroup }) => {
+  const [message, setMessage] = useState("");
+  const [groupList, setGroupList] = useState<Group[]>(groupListDefault); // TODO: Replace with actual group list from server
+  const handleChange = (event: {
+    target: { value: React.SetStateAction<string> };
+  }) => {
+    setMessage(event.target.value);
+  };
+  const createGroupHandler = (e: MouseEvent<HTMLButtonElement>) => {
+    setGroupList((prevGroupList) => {
+      return [
+        ...prevGroupList,
+        {
+          groupName: message,
+          people: 1,
+        },
+      ];
+    });
+    setMessage("");
+  };
   return (
     <div className="bg-bgColor w-1/3 border-r border-borderColor">
       <div className="h-35 w-full border-b border-borderColor items-center flex justify-center flex-col">
         <div className="w-4/5">
-          <input
-            type="text"
-            className="w-full h-12 rounded-2xl bg-borderColor pl-5 text-white mt-4"
-            placeholder="Search"
-            name="search_user"
-          />
+          <div className="w-full flex items-center relative mt-4">
+            <input
+              type="text"
+              className="w-full h-12 rounded-2xl bg-borderColor pl-5 text-white"
+              placeholder="Search"
+              name="search_user"
+            />
+            <div className="absolute right-0 top-0 h-full w-10 text-center text-gray-400 pointer-events-none flex items-center justify-center">
+              <MagnifyingGlassIcon className="h-6 w-6 text-fontBgColor" />
+            </div>
+          </div>
         </div>
         <div className="w-11/12 items-center flex justify-center">
           <input
+            id="message"
+            onChange={handleChange}
+            value={message}
             type="text"
             className="w-full h-12 rounded-2xl bg-borderColor pl-5 text-white mt-3 mb-4"
             placeholder="Enter Group Name"
@@ -46,6 +74,7 @@ const Groups: React.FC<ChatGroupsProps> = ({ onGroupClick, selectedGroup }) => {
             type="button"
             name="all-chats"
             className="w-20 h-12 rounded-xl text-white ml-2 bg-purple"
+            onClick={createGroupHandler}
           >
             Create
           </button>
